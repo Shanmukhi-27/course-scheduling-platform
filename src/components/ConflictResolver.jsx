@@ -1,8 +1,14 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { conflictService } from '../services/api'
+
 function ConflictResolver() {
-  const conflicts = [
-    { id: 1, student: 'John Doe', course1: 'CS101', course2: 'MATH101', time: 'Mon/Wed 10:00-11:00', severity: 'High' },
-    { id: 2, student: 'Jane Smith', course1: 'CS201', course2: 'ENG101', time: 'Tue/Thu 11:00-12:30', severity: 'Medium' }
-  ]
+  const navigate = useNavigate()
+  const [conflicts, setConflicts] = useState([])
+
+  useEffect(() => {
+    conflictService.getAllConflicts().then(res => setConflicts(res.data))
+  }, [])
 
   return (
     <div className="admin-section">
@@ -19,7 +25,7 @@ function ConflictResolver() {
               </div>
               <p>Conflict between <strong>{conflict.course1}</strong> and <strong>{conflict.course2}</strong></p>
               <p className="conflict-time">⏰ {conflict.time}</p>
-              <button className="btn-small btn-warning">Resolve</button>
+              <button className="btn-small btn-warning" onClick={() => navigate(`/admin/conflict/${conflict.id}`)}>Resolve</button>
             </div>
           ))}
         </div>

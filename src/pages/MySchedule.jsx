@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react'
 import TimeTable from '../components/TimeTable'
 import Statistics from '../components/Statistics'
+import { registrationService } from '../services/api'
 
-function MySchedule() {
+function MySchedule({ user }) {
   const [schedule, setSchedule] = useState([])
   const [view, setView] = useState('timetable')
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('registeredCourses') || '[]')
-    setSchedule(saved)
-  }, [])
+    if (user?.id) {
+      registrationService.getStudentRegistrations(user.id).then(res => setSchedule(res.data))
+    }
+  }, [user])
 
-  const handleDrop = (courseId) => {
-    const updated = schedule.filter(c => c.id !== courseId)
-    setSchedule(updated)
-    localStorage.setItem('registeredCourses', JSON.stringify(updated))
+  const handleDrop = async (courseId) => {
+    await registrationService.dropCourse(user.id, courseId)
+    setSchedule(schedule.filter(c => c.id !== courseId))
   }
 
   return (
@@ -35,12 +36,7 @@ function MySchedule() {
             <table className="schedule-table">
               <thead>
                 <tr>
-                  <th>Code</th>
-                  <th>Course Name</th>
-                  <th>Instructor</th>
-                  <th>Schedule</th>
-                  <th>Credits</th>
-                  <th>Action</th>
+                  <th>Code</th><th>Course Name</th><th>Instructor</th><th>Schedule</th><th>Credits</th><th>Action</th>
                 </tr>
               </thead>
               <tbody>

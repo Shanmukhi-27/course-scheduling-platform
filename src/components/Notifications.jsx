@@ -1,16 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { notificationService } from '../services/api'
 
 function Notifications() {
-  const [announcements] = useState([
-    { id: 1, title: 'Registration Deadline', message: 'Course registration closes on Dec 31', type: 'warning', date: '2024-01-15' },
-    { id: 2, title: 'New Courses Added', message: '5 new courses available for Spring 2024', type: 'info', date: '2024-01-14' },
-    { id: 3, title: 'System Maintenance', message: 'Platform will be down on Sunday 2-4 AM', type: 'alert', date: '2024-01-13' }
-  ])
+  const navigate = useNavigate()
+  const [announcements, setAnnouncements] = useState([])
+
+  useEffect(() => {
+    notificationService.getAllNotifications().then(res => setAnnouncements(res.data))
+  }, [])
 
   return (
     <div className="admin-section">
       <h3>🔔 Notifications & Announcements</h3>
-      <button className="btn-primary" style={{marginBottom: '1rem'}}>➕ Create Announcement</button>
+      <button className="btn-primary" style={{ marginBottom: '1rem' }} onClick={() => navigate('/admin/notification/create')}>➕ Create Announcement</button>
       <div className="notifications-list">
         {announcements.map(notif => (
           <div key={notif.id} className={`notification-card ${notif.type}`}>
@@ -20,8 +23,8 @@ function Notifications() {
             </div>
             <p>{notif.message}</p>
             <div className="notif-actions">
-              <button className="btn-small btn-info">Edit</button>
-              <button className="btn-small btn-danger">Delete</button>
+              <button className="btn-small btn-info" onClick={() => navigate(`/admin/notification/${notif.id}`)}>Edit</button>
+              <button className="btn-small btn-danger" onClick={() => navigate(`/admin/notification/${notif.id}`)}>Delete</button>
             </div>
           </div>
         ))}

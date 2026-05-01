@@ -5,6 +5,7 @@ import ConflictResolver from '../components/ConflictResolver'
 import DepartmentManager from '../components/DepartmentManager'
 import ReportsExport from '../components/ReportsExport'
 import Notifications from '../components/Notifications'
+import { courseService } from '../services/api'
 
 function AdminDashboard() {
   const [courses, setCourses] = useState([])
@@ -15,30 +16,25 @@ function AdminDashboard() {
   })
 
   useEffect(() => {
-    setCourses([
-      { id: 1, code: 'CS101', name: 'Introduction to Programming', instructor: 'Dr. Smith', schedule: 'Mon/Wed 09:00-10:30', credits: 3, availableSeats: 25, totalSeats: 30 },
-      { id: 2, code: 'CS201', name: 'Data Structures', instructor: 'Dr. Johnson', schedule: 'Tue/Thu 11:00-12:30', credits: 4, availableSeats: 15, totalSeats: 25 },
-      { id: 3, code: 'MATH101', name: 'Calculus I', instructor: 'Prof. Williams', schedule: 'Mon/Wed/Fri 10:00-11:00', credits: 4, availableSeats: 30, totalSeats: 40 }
-    ])
+    courseService.getAllCourses().then(res => setCourses(res.data))
   }, [])
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const newCourse = {
-      id: courses.length + 1,
+    courseService.createCourse({
       ...formData,
       credits: parseInt(formData.credits),
-      totalSeats: parseInt(formData.totalSeats),
-      availableSeats: parseInt(formData.totalSeats)
-    }
-    setCourses([...courses, newCourse])
-    setFormData({ code: '', name: '', instructor: '', schedule: '', credits: '', totalSeats: '' })
-    setShowForm(false)
+      totalSeats: parseInt(formData.totalSeats)
+    }).then(res => {
+      setCourses([...courses, res.data])
+      setFormData({ code: '', name: '', instructor: '', schedule: '', credits: '', totalSeats: '' })
+      setShowForm(false)
+    })
   }
 
   const handleDelete = (id) => {
     if (confirm('Are you sure you want to delete this course?')) {
-      setCourses(courses.filter(c => c.id !== id))
+      courseService.deleteCourse(id).then(() => setCourses(courses.filter(c => c.id !== id)))
     }
   }
 

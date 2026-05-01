@@ -1,10 +1,14 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { studentService } from '../services/api'
+
 function EnrollmentManager() {
-  const students = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', courses: 4, credits: 15, status: 'Active' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', courses: 3, credits: 12, status: 'Active' },
-    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', courses: 5, credits: 18, status: 'Active' },
-    { id: 4, name: 'Sarah Williams', email: 'sarah@example.com', courses: 2, credits: 8, status: 'Inactive' }
-  ]
+  const navigate = useNavigate()
+  const [students, setStudents] = useState([])
+
+  useEffect(() => {
+    studentService.getAllStudents().then(res => setStudents(res.data))
+  }, [])
 
   return (
     <div className="admin-section">
@@ -29,7 +33,7 @@ function EnrollmentManager() {
               <td>{student.credits}</td>
               <td><span className={`status-badge ${student.status.toLowerCase()}`}>{student.status}</span></td>
               <td>
-                <button className="btn-small btn-info">View Details</button>
+                <button className="btn-small btn-info" onClick={() => navigate(`/admin/student/${student.id}`)}>View Details</button>
               </td>
             </tr>
           ))}

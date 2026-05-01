@@ -1,9 +1,14 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { departmentService } from '../services/api'
+
 function DepartmentManager() {
-  const departments = [
-    { id: 1, name: 'Computer Science', code: 'CS', courses: 12, students: 245, head: 'Dr. Smith' },
-    { id: 2, name: 'Mathematics', code: 'MATH', courses: 8, students: 180, head: 'Prof. Williams' },
-    { id: 3, name: 'English', code: 'ENG', courses: 6, students: 150, head: 'Dr. Brown' }
-  ]
+  const navigate = useNavigate()
+  const [departments, setDepartments] = useState([])
+
+  useEffect(() => {
+    departmentService.getAllDepartments().then(res => setDepartments(res.data))
+  }, [])
 
   return (
     <div className="admin-section">
@@ -18,7 +23,7 @@ function DepartmentManager() {
               <span>📚 {dept.courses} Courses</span>
               <span>👥 {dept.students} Students</span>
             </div>
-            <button className="btn-small btn-primary">Manage</button>
+            <button className="btn-small btn-primary" onClick={() => navigate(`/admin/department/${dept.id}`)}>Manage</button>
           </div>
         ))}
       </div>
