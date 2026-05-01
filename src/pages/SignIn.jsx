@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { authService } from '../services/api'
+
+const users = [
+  { id: 1, name: 'Admin User', email: 'admin@example.com', password: 'admin123', role: 'admin' },
+  { id: 2, name: 'John Student', email: 'student@example.com', password: 'student123', role: 'student' }
+]
 
 function SignIn({ setUser }) {
   const [isLogin, setIsLogin] = useState(true)
@@ -8,17 +12,18 @@ function SignIn({ setUser }) {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
     setError('')
-    try {
-      const res = isLogin
-        ? await authService.login({ email: formData.email, password: formData.password, role: formData.role })
-        : await authService.signup(formData)
-      setUser(res.data)
-      navigate(res.data.role === 'admin' ? '/admin' : '/student')
-    } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong')
+    if (isLogin) {
+      const user = users.find(u => u.email === formData.email && u.password === formData.password && u.role === formData.role)
+      if (!user) { setError('Invalid email, password or role'); return }
+      setUser(user)
+      navigate(user.role === 'admin' ? '/admin' : '/student')
+    } else {
+      const newUser = { id: Date.now(), name: formData.name, email: formData.email, role: formData.role }
+      setUser(newUser)
+      navigate(newUser.role === 'admin' ? '/admin' : '/student')
     }
   }
 
@@ -29,14 +34,11 @@ function SignIn({ setUser }) {
           <h1>🎓 Course Scheduler</h1>
           <p>Manage your academic journey</p>
         </div>
-
         <div className="auth-toggle">
           <button className={isLogin ? 'active' : ''} onClick={() => setIsLogin(true)}>Sign In</button>
           <button className={!isLogin ? 'active' : ''} onClick={() => setIsLogin(false)}>Sign Up</button>
         </div>
-
         {error && <p style={{ color: 'red', textAlign: 'center', marginBottom: '1rem' }}>{error}</p>}
-
         <form onSubmit={handleSubmit} className="signin-form">
           {!isLogin && (
             <div className="input-group">
@@ -64,7 +66,6 @@ function SignIn({ setUser }) {
           </div>
           <button type="submit" className="btn-signin">{isLogin ? 'Sign In' : 'Create Account'}</button>
         </form>
-
         <div className="signin-footer">
           <p>
             {isLogin ? "Don't have an account? " : "Already have an account? "}
@@ -74,23 +75,10 @@ function SignIn({ setUser }) {
           </p>
         </div>
       </div>
-
       <div className="signin-features">
-        <div className="feature-item">
-          <div className="feature-icon">📚</div>
-          <h3>Course Selection</h3>
-          <p>Browse and register for courses easily</p>
-        </div>
-        <div className="feature-item">
-          <div className="feature-icon">📅</div>
-          <h3>Visual Timetable</h3>
-          <p>See your schedule at a glance</p>
-        </div>
-        <div className="feature-item">
-          <div className="feature-icon">⚡</div>
-          <h3>Instant Updates</h3>
-          <p>Real-time seat availability</p>
-        </div>
+        <div className="feature-item"><div className="feature-icon">📚</div><h3>Course Selection</h3><p>Browse and register for courses easily</p></div>
+        <div className="feature-item"><div className="feature-icon">📅</div><h3>Visual Timetable</h3><p>See your schedule at a glance</p></div>
+        <div className="feature-item"><div className="feature-icon">⚡</div><h3>Instant Updates</h3><p>Real-time seat availability</p></div>
       </div>
     </div>
   )
